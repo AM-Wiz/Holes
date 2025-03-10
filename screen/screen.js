@@ -15,6 +15,8 @@ const spaceCharCode = ' '.charCodeAt(0);
  */
 let maxScreenDim = Uint32Array.from([160, 80]);
 
+let hasScreen = false;
+
 /**
  * The screen size
  */
@@ -64,6 +66,9 @@ const clearScreen = () => {
  * Print the formatted screen buffer to the screen
  */
 const printScreen = () => {
+    if (!hasScreen)
+        throw new Error("Screen not available");
+
     clearScreen();
 
     let curColor = Color.white;
@@ -128,7 +133,20 @@ const refreshScreen = () => {
     
     // Check if the 'screen' size has changed
     const realSize = [screenStream.columns, screenStream.rows];
-    if (!(realSize[0] == screenSize[0] && realSize[1] == screenSize[1])) {
+
+    const screenFound = Number.isInteger(realSize[0]) && Number.isInteger(realSize[1]);
+    
+    if (screenFound != hasScreen) {
+        hasScreen = screenFound;
+
+        anyChange = true;
+    }
+
+    if (!hasScreen) {
+        // TODO
+    }
+    
+    if (hasScreen && !(realSize[0] == screenSize[0] && realSize[1] == screenSize[1])) {
         // Store screen size
         screenSize[0] = realSize[0], maxScreenDim[0];
         screenSize[1] = realSize[1], maxScreenDim[1];
