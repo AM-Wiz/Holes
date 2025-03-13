@@ -8,6 +8,10 @@ import {RawInputEvent} from "./lib/input/inputevent.js";
 
 import { requestQuit } from "./lib/game/quit.js"
 
+import { TrnMap } from "./lib/game/map/trnmap.js"
+import { SmoothFrameCounter } from "./lib/utility/smooth-frame-counter.js";
+
+
 /*
 {
     const {F32V} = await import("./math/vecmath.js");
@@ -29,24 +33,11 @@ import { requestQuit } from "./lib/game/quit.js"
 }
 */
 
-/*
-{
-    screen.refreshScreen();
-    
-    screen.clearBuffer('1', Color.darkRed);
-    
-    screen.printScreen();
-}
-*/
-
 const mainLoopEvent = new LoopEvent();
 
 mainLoopEvent.recurring = 0.01;
 mainLoopEvent.enabled = true;
 
-
-const maxLoops = 1000;
-let loopIdx = 0;
 
 const flashColors = [
     Color.darkRed,
@@ -55,29 +46,36 @@ const flashColors = [
     Color.blue,
 ];
 
+let loopIdx = 0;
+
+const sWriter = new screen.ScreenWriter();
+
+const smoothFrames = new SmoothFrameCounter();
+
 const mainBhvr = MakeBhvr({
     name: "Main",
-    func: (event) => {
-        if (!(loopIdx++ < maxLoops)) {
-            event.removeBehavior(mainBhvr);
-            event.cancel();
-
-            return;
-        }
-
+    func: (event, arg) => {
+        loopIdx++;
+        
         screen.refreshScreen();
     
-        const color = flashColors[Math.trunc(loopIdx % flashColors.length)];
+        sWriter.symbol = '1';
+        
+        for (let rIdx = 0, rEnd = sWriter.size[0]; rIdx < rEnd; rIdx++) {
+            const colorIdx = loopIdx + rIdx;
+            sWriter.color = flashColors[Math.trunc(colorIdx % flashColors.length)];
+            sWriter.writeRow(rIdx);
+        }
 
-        screen.clearBuffer('1', color);
-    
         screen.printScreen();
+
+        smoothFrames.add(arg.deltaTime);
     },
     events: [mainLoopEvent],
 });
 
-requestEventPoll();
 
+/*
 const onInputBhvr = MakeBhvr({
     name: "OnInput",
     func: (event, arg) => {
@@ -85,7 +83,7 @@ const onInputBhvr = MakeBhvr({
     },
     events: [RawInputEvent.instance],
 });
-
+*/
 
 MakeBhvr({
     name: "OnQuitInput",
@@ -93,6 +91,9 @@ MakeBhvr({
         if (arg === '\u0003')
             requestQuit();
     },
-    
+
     events: [RawInputEvent.instance],
 });
+
+
+requestEventPoll();
