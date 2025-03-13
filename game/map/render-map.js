@@ -1,13 +1,13 @@
 
-const {UI16V} = require("../../math/vecmath.js");
+import { UI16V } from "../../math/vecmath.js";
 
-const {TrnMap, TrnMapChunk} = require("./trnmap.js");
+import { TrnMap, TrnMapChunk } from "./trnmap.js";
 
-const {Camera} = require("../camera.js");
+import { Camera } from "../camera.js";
 
-const screen = require("../../screen/screen.js");
+import screen from "../../screen/screen.js";
 
-const {Color} = require("../../screen/color.js");
+import { Color } from "../../screen/color.js";
 
 
 /**
@@ -16,7 +16,7 @@ const {Color} = require("../../screen/color.js");
  * @param {Camera} camera The camera to render the map through
  * @param {?UI16V} screenOrigin An option screen original, if not supplied `[0, 0]` is assumed
  */
-renderMap = (map, camera, screenOrigin) => {
+export const renderMap = (map, camera, screenOrigin) => {
     if (map instanceof TrnMapChunk) {
 
     } else if (map instanceof TrnMap) {
@@ -24,11 +24,4 @@ renderMap = (map, camera, screenOrigin) => {
     } else {
         throw new Error("Invalid map");
     }
-};
-
-
-
-
-module.exports = {
-
 };

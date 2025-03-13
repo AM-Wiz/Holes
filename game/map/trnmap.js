@@ -1,6 +1,6 @@
 const {UI16V} = require("../../math/vecmath.js")
 
-class TrnMapChunk {
+export class TrnMapChunk {
     constructor() {
         
     }
@@ -79,7 +79,7 @@ class TrnMapChunk {
     }
 }
 
-class TrnMap {
+export class TrnMap {
     constructor() {
 
     }
@@ -181,10 +181,3 @@ class TrnMap {
         return this.chunks_[c].setNormHeight(b, value);
     }
 }
-
-
-
-module.exports = {
-    MapSeg: TrnMapChunk,
-    Map: TrnMap,
-};

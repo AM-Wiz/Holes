@@ -97,7 +97,7 @@ let Vec = {
 };
 
 
-class UI16V extends Uint16Array {
+export class UI16V extends Uint16Array {
     constructor(...args) {
         super(...args);
     }
@@ -112,7 +112,7 @@ class UI16V extends Uint16Array {
 
 Object.assign(UI16V.prototype, Vec);
 
-class UI32V extends Uint32Array {
+export class UI32V extends Uint32Array {
     constructor(...args) {
         super(...args);
     }
@@ -127,7 +127,7 @@ class UI32V extends Uint32Array {
 
 Object.assign(UI32V.prototype, Vec);
 
-class F32V extends Float32Array {
+export class F32V extends Float32Array {
     constructor(...args) {
         super(...args);
     }
@@ -141,11 +141,3 @@ class F32V extends Float32Array {
 }
 
 Object.assign(F32V.prototype, Vec);
-
-
-
-module.exports = {
-    UI16V,
-    UI32V,
-    F32V,
-}

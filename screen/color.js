@@ -1,13 +1,13 @@
-const pcol = require("picocolors");
+import picocol from "picocolors";
 
-const isSupported = pcol.isColorSupported;
+export const isSupported = picocol.isColorSupported;
 
 /**
  * Colors widely supported by the console
  * @readonly
  * @enum {number}
  */
-const Color = {
+export const Color = {
     black: 0,
     darkGrey: 1,
     grey: 2,
@@ -103,7 +103,7 @@ const colorCodeMap = new Map([
  * @param {?Color} fgColor the foreground color
  * @param {?Color} bgColor the background color
  */
-const setColor = (stream, fgColor, bgColor) => {
+export const setColor = (stream, fgColor, bgColor) => {
     if (!isSupported)
         return;
 
@@ -124,18 +124,10 @@ const setColor = (stream, fgColor, bgColor) => {
  * Reset the color of the following characters in the stream
  * @param {TextStreamWriter} stream The target stream
  */
-const resetColor = (stream) => {
+export const resetColor = (stream) => {
     if (!isSupported)
         return;
     
     stream.write(colorCodes.fgDefault);
     stream.write(colorCodes.bgDefault);
 }
-
-
-module.exports = {
-    isSupported,
-    Color,
-    setColor,
-    resetColor,
-};

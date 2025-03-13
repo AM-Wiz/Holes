@@ -1,7 +1,7 @@
 
-const {UI16V} = require("../math/vecmath.js");
+import { UI16V } from "../math/vecmath.js";
 
-class Camera {
+export class Camera {
     constructor() {
 
     }
@@ -13,9 +13,4 @@ class Camera {
     set center(value) {
         this.center_.copyFrom(value);
     }
-}
-
-
-module.exports = {
-    Camera,
 }

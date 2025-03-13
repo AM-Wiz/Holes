@@ -1,8 +1,9 @@
 
-const {isSupported: isColorSupported, setColor, resetColor, Color} = require("./color.js");
+import { isSupported as isColorSupported, setColor, resetColor, Color } from "./color.js";
 
+import { UI16V } from "../math/vecmath.js";
 
-const screenStream = process.stdout;
+import { stdout as screenStream } from "node:process";
 const screenPadding = 1;
 
 /**
@@ -53,7 +54,13 @@ let screenTextBuffer = new Uint8Array(screenBufferCap);
  * Contains the character colors to be displayed
  */
 let screenColorBuffer = new Uint8Array(screenBufferCap);
+/**
+ * The screen z-buffer.
+ * Contains the character 'depths'
+ */
+let screenZBuffer = new Uint8Array(screenBufferCap);
 
+const zMax = 255;
 
 /**
  * Clear the screen
@@ -68,6 +75,8 @@ const clearScreen = () => {
 const printScreen = () => {
     if (!hasScreen)
         throw new Error("Screen not available");
+
+    screenStream.cork();
 
     clearScreen();
 
@@ -92,7 +101,7 @@ const printScreen = () => {
                 return;
 
             // Get the segment to write
-            const seg = screenTextBuffer.slice(prevSegI, curSegI);
+            const seg = new DataView(screenTextBuffer.buffer, prevSegI, curSegI - prevSegI);
 
             // Write the segment
             screenStream.write(seg, 'ascii');
@@ -122,6 +131,8 @@ const printScreen = () => {
 
     // Reset the color so that any following text is not colored
     resetColor(screenStream);
+
+    screenStream.uncork();
 };
 
 /**
@@ -164,6 +175,7 @@ const refreshScreen = () => {
             screenBufferCap = reqBufCap;
             screenTextBuffer = new Uint8Array(screenBufferCap);
             screenColorBuffer = new Uint8Array(screenBufferCap);
+            screenZBuffer = new Uint8Array(screenBufferCap);
         }
 
         anyChange = true;
@@ -182,7 +194,7 @@ const getAsciiCode = (symbol) => {
         // Is already a character code
     } else if (typeof symbol === "string") {
         symbol = symbol.charCodeAt(0);
-    } else if (symbol === null) {
+    } else if (symbol == null) {
         // No symbol specified
         symbol = null;
     } else {
@@ -200,7 +212,7 @@ const getAsciiCode = (symbol) => {
 const getColorCode = (color) => {
     if (Number.isInteger(color)) {
         // Is already a color code
-    } else if (color === null) {
+    } else if (color == null) {
         // No color specified
         color = null;
     } else {
@@ -211,18 +223,55 @@ const getColorCode = (color) => {
 };
 
 /**
+ * 
+ * @param {Number|UI16V} coord The coordinate
+ * @returns {Number}
+ */
+const getBufferIndex = (coord) => {
+    if (Number.isInteger(coord)) {
+        
+    } else if (coord instanceof UI16V) {
+        coord = coord[0] + coord[1] * bufferDim[1];
+    } else {
+        throw new Error();
+    }
+
+    return coord;
+};
+
+/**
+ * Get the integer z value
+ * @param {?Number} unormZ The normalized z value
+ * @returns {?Number}
+ */
+const getUintZ = (unormZ) => {
+    if (typeof unormZ === 'number') {
+        unormZ = Math.trunc(unormZ * zMax);
+    } else if (unormZ == null) {
+        unormZ = null;
+    } else {
+        throw new Error();
+    }
+
+    return unormZ;
+};
+
+/**
  * Change the symbol at `coord` to `symbol` with `color`
- * @param {Int32Array} coord The coordinate of the write
+ * @param {Number|UI16V} coord The coordinate of the write
  * @param {?Number|String} symbol The symbol, or null ot leave the symbol alone
  * @param {?Color} color The color of the symbol, or null to leave the color alone
+ * @param {?Number} z The z-level of the symbol, or null to write unconditionally
  */
-const writeBuffer = (coord, symbol, color) => {
+const writeBuffer = (coord, symbol, color, z) => {
     // Check our coordinates
     if (!(coord[0] >= 0 && coord[0] < bufferDim[0]) || !(coord[1] >= 0 && coord[1] < bufferDim[1]))
         return;
-
+    
     // Get the index
-    const idx = coord[0] + coord[1] * bufferDim[1];
+    const idx = getBufferIndex(coord);
+
+    z = getUintZ(z);
 
     // Resolve the symbol-ascii code
     symbol = getAsciiCode(symbol);
@@ -230,6 +279,14 @@ const writeBuffer = (coord, symbol, color) => {
     // Resolve the color code
     color = getColorCode(color);
     
+    if (z !== null) {
+        // Z-test the input
+        if (!(z < screenZBuffer[idx]))
+            return;
+        
+        screenZBuffer[idx] = z;
+    }
+
     if (symbol !== null)
         screenTextBuffer[idx] = symbol;
     
@@ -242,18 +299,22 @@ const writeBuffer = (coord, symbol, color) => {
  * @param {?Number|String} symbol The symbol to clear the buffer with
  * @param {?Color} color The color to clear the buffer with
  */
-const clearBuffer = (symbol, color) => {
+const clearBuffer = (symbol, color, z) => {
     symbol = getAsciiCode(symbol) || spaceCharCode;
 
     color = getColorCode(color) || Color.default;
+
+    z = getUintZ(z) || zMax;
     
     screenTextBuffer.fill(symbol);
 
     screenColorBuffer.fill(color);
+
+    screenZBuffer.fill(z);
 };
 
 
-module.exports = {
+export default {
     printScreen,
     clearScreen,
     refreshScreen,
