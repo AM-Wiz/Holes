@@ -1,8 +1,8 @@
-import screen from "./screen/screen.js";
-import { Color } from "./screen/color.js";
+import screen from "./lib/screen/screen.js";
+import { Color } from "./lib/screen/color.js";
 
-import { Event, Behavior, MakeBhvr } from "./game/schedule/events.js";
-import { LoopEvent, requestEventPoll } from "./game/schedule/loopevents.js";
+import { Event, Behavior, MakeBhvr } from "./lib/schedule/events.js";
+import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
 
 /*
 {
