@@ -4,6 +4,10 @@ import { Color } from "./lib/screen/color.js";
 import { Event, Behavior, MakeBhvr } from "./lib/schedule/events.js";
 import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
 
+import {RawInputEvent} from "./lib/input/inputevent.js";
+
+import { requestQuit } from "./lib/game/quit.js"
+
 /*
 {
     const {F32V} = await import("./math/vecmath.js");
@@ -34,8 +38,6 @@ import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
     screen.printScreen();
 }
 */
-
-
 
 const mainLoopEvent = new LoopEvent();
 
@@ -75,3 +77,22 @@ const mainBhvr = MakeBhvr({
 });
 
 requestEventPoll();
+
+const onInputBhvr = MakeBhvr({
+    name: "OnInput",
+    func: (event, arg) => {
+
+    },
+    events: [RawInputEvent.instance],
+});
+
+
+MakeBhvr({
+    name: "OnQuitInput",
+    func: (event, arg) => {
+        if (arg === '\u0003')
+            requestQuit();
+    },
+    
+    events: [RawInputEvent.instance],
+});
