@@ -59,10 +59,13 @@ const smoothFrames = new SmoothFrameCounter();
 
 const camera = new Camera();
 
-const trn = new TrnMapChunk();
+const trn = new TrnMap();
+trn.dim = [5, 5];
 
 const buildTrn = () => {
-    const channel = new TrnNoiseChannel();
+    const channel = new TrnNoiseChannel({
+        scale: 1 / 20
+    });
 
     randomHeight(trn, channel);
 }
