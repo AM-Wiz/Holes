@@ -8,8 +8,13 @@ import {RawInputEvent} from "./lib/input/inputevent.js";
 
 import { requestQuit } from "./lib/game/quit.js"
 
-import { TrnMap } from "./lib/game/map/trnmap.js"
+import { TrnMap, TrnMapChunk } from "./lib/game/map/trnmap.js"
+import { renderMap } from "./lib/game/map/render-map.js";
+
 import { SmoothFrameCounter } from "./lib/utility/smooth-frame-counter.js";
+
+import { Camera } from "./lib/game/camera.js";
+import { randomHeight, TrnNoiseChannel } from "./lib/game/map/trn-gen.js";
 
 
 /*
@@ -52,13 +57,30 @@ const sWriter = new screen.ScreenWriter();
 
 const smoothFrames = new SmoothFrameCounter();
 
+const camera = new Camera();
+
+const trn = new TrnMapChunk();
+
+const buildTrn = () => {
+    const channel = new TrnNoiseChannel();
+
+    randomHeight(trn, channel);
+}
+
+buildTrn();
+
 const mainBhvr = MakeBhvr({
     name: "Main",
     func: (event, arg) => {
         loopIdx++;
         
         screen.refreshScreen();
-    
+
+        screen.clearScreenZBuffer();
+
+        renderMap(trn, camera);
+
+        /*
         sWriter.symbol = '1';
         
         for (let rIdx = 0, rEnd = sWriter.size[0]; rIdx < rEnd; rIdx++) {
@@ -66,6 +88,7 @@ const mainBhvr = MakeBhvr({
             sWriter.color = flashColors[Math.trunc(colorIdx % flashColors.length)];
             sWriter.writeRow(rIdx);
         }
+        */
 
         screen.printScreen();
 
@@ -75,15 +98,15 @@ const mainBhvr = MakeBhvr({
 });
 
 
-/*
 const onInputBhvr = MakeBhvr({
     name: "OnInput",
     func: (event, arg) => {
-
+        if (arg === 't')
+            setImmediate(buildTrn);
     },
     events: [RawInputEvent.instance],
 });
-*/
+
 
 MakeBhvr({
     name: "OnQuitInput",
