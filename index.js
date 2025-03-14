@@ -1,5 +1,5 @@
 import screen from "./lib/screen/screen.js";
-import { Color } from "./lib/screen/color.js";
+import { CColor } from "./lib/screen/color.js";
 
 import { Event, Behavior, MakeBhvr } from "./lib/schedule/events.js";
 import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
@@ -45,10 +45,10 @@ mainLoopEvent.enabled = true;
 
 
 const flashColors = [
-    Color.darkRed,
-    Color.red,
-    Color.darkBlue,
-    Color.blue,
+    CColor.darkRed,
+    CColor.red,
+    CColor.darkBlue,
+    CColor.blue,
 ];
 
 let loopIdx = 0;
