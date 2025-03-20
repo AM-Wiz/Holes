@@ -14,7 +14,9 @@ import { renderMap } from "./lib/game/map/render-map.js";
 import { SmoothFrameCounter } from "./lib/utility/smooth-frame-counter.js";
 
 import { Camera } from "./lib/game/camera.js";
-import { randomHeight, TrnNoiseChannel } from "./lib/game/map/trn-gen.js";
+import { fillTiles, randomSeed, randomSplatTiles, TrnCombineChannel, TrnMapZChannel, TrnNoiseChannel } from "./lib/game/map/trn-gen.js";
+import { I16V } from "./lib/math/vecmath.js";
+import { TrnPalette, TrnTile } from "./lib/game/map/trn-tile.js";
 
 
 /*
@@ -57,17 +59,98 @@ const sWriter = new screen.ScreenWriter();
 
 const smoothFrames = new SmoothFrameCounter();
 
-const camera = new Camera();
+const camera = new Camera({
+    viewTop: 5,
+    viewBottom: -5,
+});
 
 const trn = new TrnMap();
-trn.dim = [5, 5];
+trn.dim = [20, 20];
+// trn.dim = [2, 2];
+
+const trnPal = TrnPalette.from([
+    new TrnTile({
+        symbol: '%',
+        color: CColor.magenta,
+    }),
+    new TrnTile({
+        symbol: '/',
+        color: [CColor.darkGrey, CColor.darkGreen, CColor.green],
+    }),
+    new TrnTile({
+        symbol: '~',
+        color: [CColor.darkGrey, CColor.darkGrey, CColor.grey, CColor.white],
+    }),
+    new TrnTile({
+        symbol: '~',
+        color: [CColor.darkGrey, CColor.darkYellow, CColor.yellow],
+    }),
+]);
 
 const buildTrn = () => {
-    const channel = new TrnNoiseChannel({
-        scale: 1 / 20
+    fillTiles(trn, {
+        tileId: 2,
+        height: 0,
     });
 
-    randomHeight(trn, channel);
+    const ws = randomSeed();
+
+    const channelA = new TrnNoiseChannel({
+        channelSeed: "A",
+        worldSeed: ws,
+        scale: 1 / 10
+    });
+    
+    const channelB = new TrnCombineChannel(
+        TrnCombineChannel.Modes.mul,
+        [
+            new TrnNoiseChannel({ 
+                channelSeed: "B",
+                worldSeed: ws, scale: 1 / 10
+            }),
+            new TrnMapZChannel(
+                new TrnNoiseChannel({
+                    channelSeed: "BJit",
+                    worldSeed: ws,
+                    scale: 1 / 2
+                }),
+                0.5, 1
+            ),
+        ],
+    );
+
+    randomSplatTiles(trn, {
+        heightMode: 'set',
+        minHeight: -2,
+        maxHeight: 2,
+
+        channel: channelA,
+    });
+
+    
+    randomSplatTiles(trn, {
+        heightMode: 'add',
+        maxHeight: 2,
+        
+        channel: channelB,
+
+        tileId: 3,
+        
+        minThreshold: 0.2,
+        mask: channelB,
+    });
+    
+    randomSplatTiles(trn, {
+        heightMode: 'add',
+        maxHeight: 1,
+        
+        channel: channelB,
+
+        tileId: 1,
+
+        minThreshold: 0.5,
+        mask: channelB,
+    });
 }
 
 buildTrn();
@@ -81,7 +164,11 @@ const mainBhvr = MakeBhvr({
 
         screen.clearScreenZBuffer();
 
-        renderMap(trn, camera);
+        camera.center = cursor;
+
+        renderMap(trn, camera, {
+            palette: trnPal
+        });
 
         /*
         sWriter.symbol = '1';
@@ -100,12 +187,36 @@ const mainBhvr = MakeBhvr({
     events: [mainLoopEvent],
 });
 
+let cursor = I16V.from(camera.center);
 
 const onInputBhvr = MakeBhvr({
     name: "OnInput",
     func: (event, arg) => {
         if (arg === 't')
             setImmediate(buildTrn);
+
+        if (arg === '\x1b[A' || arg === '8')
+            cursor[1] += 1;
+        else if (arg === '\x1b[B' || arg === '2')
+            cursor[1] -= 1;
+        else if (arg === '\x1b[C' || arg === '6')
+            cursor[0] += 1;
+        else if (arg === '\x1b[D' || arg === '4')
+            cursor[0] -= 1;
+        
+        else if (arg === '9')
+            cursor[0] += 1, cursor[1] += 1;
+        else if (arg === '3')
+            cursor[0] += 1, cursor[1] -= 1;
+        else if (arg === '1')
+            cursor[0] -= 1, cursor[1] -= 1;
+        else if (arg === '7')
+            cursor[0] -= 1, cursor[1] += 1;
+
+        else if (arg === '>' || arg === '+')
+            cursor[2] += 1;
+        else if (arg === '<' || arg === '-')
+            cursor[2] -= 1;
     },
     events: [RawInputEvent.instance],
 });
@@ -114,8 +225,12 @@ const onInputBhvr = MakeBhvr({
 MakeBhvr({
     name: "OnQuitInput",
     func: (event, arg) => {
-        if (arg === '\u0003')
-            requestQuit();
+        if (arg !== '\u0003')
+            return;
+
+        console.log(`framerate was ${smoothFrames.fps}`);
+
+        requestQuit();
     },
 
     events: [RawInputEvent.instance],
