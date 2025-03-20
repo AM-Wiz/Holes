@@ -13,7 +13,7 @@
 - [ ] Redesign `TrnTile` graphic component
   - [ ] Should tiles be able to define custom drawing behavior?
   - [ ] Should tiles be able to access the full 256 ansi colors?
-- [ ] Create combined format for `CColor` and `Color256`
+- [x] Create combined format for `CColor` and `Color256`
   - `CColor` can be redesigned as a mapping on `Color256`
     - All `CColor` exist in the `Color256` table
 - [ ] Create 'sprite' format for the screen subsystem

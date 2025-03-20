@@ -1,5 +1,5 @@
 import screen from "./lib/screen/screen.js";
-import { CColor } from "./lib/screen/color.js";
+import { CColor, get256Color } from "./lib/screen/color.js";
 
 import { Event, Behavior, MakeBhvr } from "./lib/schedule/events.js";
 import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
@@ -47,10 +47,10 @@ mainLoopEvent.enabled = true;
 
 
 const flashColors = [
-    CColor.darkRed,
     CColor.red,
-    CColor.darkBlue,
+    CColor.redBright,
     CColor.blue,
+    CColor.blueBright,
 ];
 
 let loopIdx = 0;
@@ -68,22 +68,31 @@ const trn = new TrnMap();
 trn.dim = [20, 20];
 // trn.dim = [2, 2];
 
+const getShades = (color, count) => {
+    const colors = new Array({length: count});
+    for (let index = 0; index < count; index++) {
+        const factor = index / (count - 1);
+        colors[index] = get256Color(color[0] * factor, color[1] * factor, color[2] * factor);
+    }
+    return colors;
+}
+
 const trnPal = TrnPalette.from([
     new TrnTile({
         symbol: '%',
-        color: CColor.magenta,
+        color: CColor.magentaBright,
     }),
     new TrnTile({
         symbol: '/',
-        color: [CColor.darkGrey, CColor.darkGreen, CColor.green],
+        color: getShades([0.3, 1, 0.2], 10),
+    }),
+    new TrnTile({
+        symbol: '~', // TODO unicode isn't working
+        color: getShades([0.8, 0.8, 0.8], 10),
     }),
     new TrnTile({
         symbol: '~',
-        color: [CColor.darkGrey, CColor.darkGrey, CColor.grey, CColor.white],
-    }),
-    new TrnTile({
-        symbol: '~',
-        color: [CColor.darkGrey, CColor.darkYellow, CColor.yellow],
+        color: getShades([1, 0.8, 0.5], 10),
     }),
 ]);
 
