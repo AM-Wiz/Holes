@@ -8,15 +8,15 @@ import {RawInputEvent} from "./lib/input/inputevent.js";
 
 import { requestQuit } from "./lib/game/quit.js"
 
-import { TrnMap, TrnMapChunk } from "./lib/game/map/trnmap.js"
-import { renderMap } from "./lib/game/map/render-map.js";
+import { TrnMap, TrnMapChunk } from "./lib/map/trnmap.js"
+import { renderMap } from "./lib/map/render-map.js";
 
 import { SmoothFrameCounter } from "./lib/utility/smooth-frame-counter.js";
 
-import { Camera } from "./lib/game/camera.js";
-import { fillTiles, randomSeed, randomSplatTiles, TrnCombineChannel, TrnMapZChannel, TrnNoiseChannel } from "./lib/game/map/trn-gen.js";
+import { Camera } from "./lib/camera.js";
+import { fillTiles, randomSeed, randomSplatTiles, TrnCombineChannel, TrnMapZChannel, TrnNoiseChannel } from "./lib/map/trn-gen.js";
 import { I16V } from "./lib/math/vecmath.js";
-import { TrnPalette, TrnTile } from "./lib/game/map/trn-tile.js";
+import { TrnPalette, TrnTile } from "./lib/map/trn-tile.js";
 
 
 const mainLoopEvent = new LoopEvent();
