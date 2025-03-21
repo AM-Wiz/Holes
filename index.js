@@ -19,43 +19,11 @@ import { I16V } from "./lib/math/vecmath.js";
 import { TrnPalette, TrnTile } from "./lib/game/map/trn-tile.js";
 
 
-/*
-{
-    const {F32V} = await import("./math/vecmath.js");
-    const vres = F32V.from([0, 1, 2]).add(5);
-    console.log(vres);
-}
-*/
-
-/*
-{
-    const str = "abcd\0efgh";
-    const bufTest = new Uint8Array(str.length);
-
-    for (let i = 0; i < str.length; i++) {
-        bufTest[i] = str.charCodeAt(i);
-    }
-
-    process.stdout.write(new DataView(bufTest.buffer, 4), 'ascii');
-}
-*/
-
 const mainLoopEvent = new LoopEvent();
 
 mainLoopEvent.recurring = 0.01;
 mainLoopEvent.enabled = true;
 
-
-const flashColors = [
-    CColor.red,
-    CColor.redBright,
-    CColor.blue,
-    CColor.blueBright,
-];
-
-let loopIdx = 0;
-
-const sWriter = new screen.ScreenWriter();
 
 const smoothFrames = new SmoothFrameCounter();
 
@@ -83,16 +51,16 @@ const trnPal = TrnPalette.from([
         color: CColor.magentaBright,
     }),
     new TrnTile({
-        symbol: '/',
-        color: getShades([0.3, 1, 0.2], 10),
+        symbol: '‴',
+        color: getShades([0.3, 1, 0.2], 5),
     }),
     new TrnTile({
-        symbol: '~', // TODO unicode isn't working
-        color: getShades([0.8, 0.8, 0.8], 10),
+        symbol: '▒',
+        color: getShades([0.8, 0.8, 0.8], 5),
     }),
     new TrnTile({
         symbol: '~',
-        color: getShades([1, 0.8, 0.5], 10),
+        color: getShades([1, 0.8, 0.5], 5),
     }),
 ]);
 
@@ -167,8 +135,6 @@ buildTrn();
 const mainBhvr = MakeBhvr({
     name: "Main",
     func: (event, arg) => {
-        loopIdx++;
-        
         screen.refreshScreen();
 
         screen.clearScreenZBuffer();
@@ -178,16 +144,6 @@ const mainBhvr = MakeBhvr({
         renderMap(trn, camera, {
             palette: trnPal
         });
-
-        /*
-        sWriter.symbol = '1';
-        
-        for (let rIdx = 0, rEnd = sWriter.size[0]; rIdx < rEnd; rIdx++) {
-            const colorIdx = loopIdx + rIdx;
-            sWriter.color = flashColors[Math.trunc(colorIdx % flashColors.length)];
-            sWriter.writeRow(rIdx);
-        }
-        */
 
         screen.printScreen();
 
