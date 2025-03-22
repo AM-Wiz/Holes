@@ -1,10 +1,31 @@
-import screen from "./lib/screen/screen.js";
+/*
+import encode from "./lib/utility/encode.js";
+
+{
+    let buf = new Uint8Array(10);
+
+    const char = '░';
+
+    const cp = char.codePointAt(0);
+
+    encode.encodeInto8(cp, buf, 0);
+
+    process.stdout.write(char);
+    process.stdout.write(buf, 'utf-8');
+
+    const dummy = 0;
+}
+*/
+
+
+import { Screen, ScreenBuffer } from "./lib/screen/screen.js";
+import { printScreen } from "./lib/screen/print-screen.js";
 import { CColor, get256Color } from "./lib/screen/color.js";
 
 import { Event, Behavior, MakeBhvr } from "./lib/schedule/events.js";
 import { LoopEvent, requestEventPoll } from "./lib/schedule/loopevents.js";
 
-import {RawInputEvent} from "./lib/input/inputevent.js";
+import { RawInputEvent } from "./lib/input/inputevent.js";
 
 import { requestQuit } from "./lib/game/quit.js"
 
@@ -132,26 +153,6 @@ const buildTrn = () => {
 
 buildTrn();
 
-const mainBhvr = MakeBhvr({
-    name: "Main",
-    func: (event, arg) => {
-        screen.refreshScreen();
-
-        screen.clearScreenZBuffer();
-
-        camera.center = cursor;
-
-        renderMap(trn, camera, {
-            palette: trnPal
-        });
-
-        screen.printScreen();
-
-        smoothFrames.add(arg.deltaTime);
-    },
-    events: [mainLoopEvent],
-});
-
 let cursor = I16V.from(camera.center);
 
 const onInputBhvr = MakeBhvr({
@@ -201,5 +202,31 @@ MakeBhvr({
     events: [RawInputEvent.instance],
 });
 
+
+Screen.refresh();
+
+const screenBuffer = new ScreenBuffer();
+screenBuffer.refresh();
+
+const mainBhvr = MakeBhvr({
+    name: "Main",
+    func: (event, arg) => {
+        if (Screen.refresh())
+            screenBuffer.refresh();
+
+        screenBuffer.clearZ();
+
+        camera.center = cursor;
+
+        renderMap(trn, screenBuffer, camera, {
+            palette: trnPal
+        });
+
+        printScreen(screenBuffer);
+
+        smoothFrames.add(arg.deltaTime);
+    },
+    events: [mainLoopEvent],
+});
 
 requestEventPoll();
