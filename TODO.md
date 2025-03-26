@@ -7,16 +7,20 @@
 - [ ] Design entity system
 - [x] Redesign `TrnMap` & `TrnMapChunk` interface
   - Should provide options for indexed and x, y-pair access
+- [ ] Clean up screen module
+  - Adjust naming of api elements
+- [ ] Clean up map-render module
+  - Encapsulate behavior
 
 ## Close Term
 
 - [ ] Redesign `TrnTile` graphic component
   - [ ] Should tiles be able to define custom drawing behavior?
-  - [ ] Should tiles be able to access the full 256 ansi colors?
+  - [x] Should tiles be able to access the full 256 ansi colors?
 - [x] Create combined format for `CColor` and `Color256`
   - `CColor` can be redesigned as a mapping on `Color256`
     - All `CColor` exist in the `Color256` table
-- [ ] Create 'sprite' format for the screen subsystem
+- [x] Create 'sprite' format for the screen subsystem
   - The screen should be able to efficiently blit sprites
 - [ ] Create 'formatted text block' format for the screen subsystem
   - Should be pre-flowed and blittable to the screen buffer
