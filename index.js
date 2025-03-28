@@ -38,6 +38,9 @@ const onInputBhvr = MakeBhvr({
     events: [RawInputEvent.instance],
 });
 
-spawnPlayer();
+spawnPlayer({
+    pos: [10, 10],
+    placeOnGround: true,
+});
 
 queueRender();
