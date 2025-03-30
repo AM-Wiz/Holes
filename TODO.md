@@ -11,6 +11,8 @@
   - Adjust naming of api elements
 - [ ] Clean up map-render module
   - Encapsulate behavior
+- [ ] Use relative path for `print-slave.js`
+  - Resolve just relative from module path of `remote-print.js`?
 
 ## Close Term
 
