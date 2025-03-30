@@ -13,6 +13,7 @@
   - Encapsulate behavior
 - [ ] Use relative path for `print-slave.js`
   - Resolve just relative from module path of `remote-print.js`?
+- [x] Fix screen tearing when using `remote-print`
 
 ## Close Term
 
