@@ -1,5 +1,6 @@
 
-import { GameTickEvent, GameWorld } from "./lib/game/game-world.js";
+import { GameWorld } from "./lib/game/game-world.js";
+import { GameTickEvent } from "./lib/game/game-tick.js";
 
 import { } from "./lib/game/game-map-gen.js";
 
